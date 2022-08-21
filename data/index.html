@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RollCon</title>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="https://i.ibb.co/Mp5RkP9/android-chrome-192x192.png">
+    </head>
+
+    <body>
+        <div class="container">
+            <div id="both">
+                <h1>RollCon</h1>
+                <div class="txt">
+                    <p style="margin: 0; width: 30px;">ALL</p>
+                </div>
+                <div class="sHolder">
+                    <input id="all" class="slider" type="range" step="1" value="1" min="1" max="3" style="margin-top: 65px;">
+                </div>
+            </div>
+            <div id="each">
+                <h1>RollCon</h1>
+                <div class="txt">
+                    <p>L</p>
+                    <p>R</p>
+                </div>
+                <div class="sHolder">
+                    <input id="r" class="slider" type="range" step="1" value="1" min="1" max="3" style="margin-top: 20px;">
+                    <input id="l" class="slider" type="range" step="1" value="1" min="1" max="3" style="margin-top: 65px;">
+                </div>
+            </div>
+            <div id="hold">
+                <h1>RollCon</h1>
+                <div class="txt">
+                    <p>L</p>
+                    <p>R</p>
+                </div>
+                <div class="btnHolder">
+                    <div>
+                        <button class="sBtn rotate" onmouseover="sBtnHover(true, 'upR');" onmouseout="sBtnHover(false, 'upR');" ontouchstart="moveShutter('R', 'up', 'start');" ontouchend="moveShutter('R', 'up', 'end');"><i id="upR" class="fas fa-chevron-up"></i></button>
+                        <button class="sBtn -rotate" onmouseover="sBtnHover(true, 'downR');" onmouseout="sBtnHover(false, 'downR');" ontouchstart="moveShutter('R', 'down', 'start');" ontouchend="moveShutter('R', 'down', 'end');"><i id="downR" class="fas fa-chevron-up"></i></button>
+                    </div>
+                    <div style="margin-bottom: 5px">
+                        <button class="sBtn rotate" onmouseover="sBtnHover(true, 'upL');" onmouseout="sBtnHover(false, 'upL');" ontouchstart="moveShutter('L', 'up', 'start');" ontouchend="moveShutter('L', 'up', 'end');"><i id="upL" class="fas fa-chevron-up"></i></button>
+                        <button class="sBtn -rotate" onmouseover="sBtnHover(true, 'downL');" onmouseout="sBtnHover(false, 'downL');" ontouchstart="moveShutter('L', 'down', 'start');" ontouchend="moveShutter('L', 'down', 'end');"><i id="downL" class="fas fa-chevron-up"></i></button>
+                    </div>
+                </div>
+            </div>
+           <div style="margin-top: 10px;">
+                <button id="btn" class="btn" onclick="apply();">Apply</button>
+                <button class="sBtn" onmouseover="sBtnHover(true, 'icon');" onmouseout="sBtnHover(false, 'icon');" onclick="switchPage();"><i id="icon" class="fas fa-sync"></i></button>
+            </div>
+        </div>
+
+        <!--<button onclick="down();" class="btn">Down</button>-->
+    </body>
+
+    <script>
+        var page = 2;
+
+        function switchPage () {
+            document.getElementById("btn").style.display = "inline-block";
+            if(page == 0) {
+                document.getElementById("each").style.display = "none";
+                document.getElementById("both").style.display = "block";
+                document.getElementById("hold").style.display = "none";
+            } else if (page == 1) {
+                document.getElementById("each").style.display = "block";
+                document.getElementById("both").style.display = "none";
+                document.getElementById("hold").style.display = "none";
+            } else if (page == 2) {
+                document.getElementById("each").style.display = "none";
+                document.getElementById("both").style.display = "none";
+                document.getElementById("hold").style.display = "block";
+                document.getElementById("btn").style.display = "none";
+                page = 0;
+                return;
+            }
+            page++;
+        }
+
+        switchPage();
+
+          getShutterStatus();
+        //setInterval(getShutterStatus, 1000);
+
+        function getShutterStatus () {
+            fetch("http://192.168.178.51:8008/s").then(response => response.text()).then(data => {
+                console.log(data);
+                var temp = data.split(" ");
+                document.getElementById("l").value = temp[0];
+                document.getElementById("r").value = temp[1];
+                document.getElementById("all").value = temp[1];
+            });
+        }
+
+        function down () {
+            fetch("http://192.168.178.51:8008/r");
+        }
+
+        function sBtnHover(status, id) {
+            if(status) {
+                document.getElementById(id).style.filter = "invert(100)";
+            } else {
+                document.getElementById(id).style.filter = "invert(0)";
+            }
+        }
+
+        function moveShutter (pos, dir, cmd) {
+            console.log(pos, dir, cmd);
+            fetch("http://192.168.178.51:8008/" + pos + dir + cmd);
+        }
+
+        function apply () {
+            
+            var l = document.getElementById("l").value;
+            var r = document.getElementById("r").value;
+            var all = document.getElementById("all").value;
+            if (page == 2){
+                fetch("http://192.168.178.51:8008/l" + l);
+                fetch("http://192.168.178.51:8008/r" + r);
+                console.log("http://192.168.178.51:8008/l" + l);
+                console.log("http://192.168.178.51:8008/r" + r);
+            } else if (page == 1) {
+                fetch("http://192.168.178.51:8008/" + all);
+            } 
+            
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            font-family: sans-serif;
+            background: rgb(25, 25, 25);
+            color: white;
+            text-align: center;
+            display: grid;
+            place-items: center;
+        }
+
+        .container {
+            height: auto;
+            width: 300px;
+        }
+
+        .btn {
+            transition: all 200ms;
+            border:0;
+            background:#2ecc71;
+            display: inline-block;
+            margin: 20px auto;
+            text-align: center;
+            padding: 14px 10px;
+            width: 160px;
+            outline: none;
+            color:white;
+            border-radius: 25px;
+            transition: 0.25s;
+            font-size: 1.1rem;
+        }
+
+        .btn:hover {
+            background: #488561;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .sBtn {
+            transition: all 200ms;
+            border:0;
+            background:#444444;
+            display: inline-block;
+            margin: 20px auto;
+            text-align: center;
+            padding: 14px 10px;
+            width: 50px;
+            outline: none;
+            color:white;
+            border-radius: 25px;
+            transition: 0.25s;
+            font-size: 1.1rem;
+            margin-left: 5px;
+        }
+
+        .sBtn:hover {
+            background: #d8d8d8;
+        }
+
+        .sBtn:active {
+            transform: scale(0.95);
+        }
+
+        .rotate {
+            transform: rotate(-90deg);
+        }
+
+        .rotate:active {
+            transform: scale(0.95) rotate(-90deg);
+        }
+
+        .-rotate {
+            transform: rotate(90deg);
+            margin-left: 30px;
+        }
+
+        .-rotate:active {
+            transform: scale(0.95) rotate(90deg);
+        }
+
+        #icon {
+            transition: all 200ms;
+        }
+
+        h1 {
+            font-family: 'Lobster', cursive;
+            margin: 10px 0px 15px;
+            font-size: 3rem;
+        }
+
+        p {
+            width: 10px;
+            display: inline-block;
+            margin: 0px 36px;
+        }
+
+        .txt {
+            margin-bottom: 15px;
+        }
+
+        .sHolder {
+            width: 210px;
+            height: 150px;
+            margin: 25px 0px 20px;
+            display: inline-block;
+            transform: rotate(90deg);
+        }
+
+        .btnHolder {
+            display: inline-block;
+            transform: rotate(90deg);
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 200px;
+            height: 20px;
+            border-radius: 5px;  
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            opacity: 1;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%; 
+            background: #2ecc71;
+            cursor: pointer;
+            border: solid 2px white;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #2ecc71;
+            cursor: pointer;
+            border: solid 2px white;
+        }
+    </style>
+</html>
